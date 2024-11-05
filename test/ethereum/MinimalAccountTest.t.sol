@@ -36,7 +36,7 @@ contract MinimalAccountTest is Test {
         address dest = address(usdc);
         uint256 value = 0;
         bytes memory functionData = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
-         
+
         //Act
         vm.prank(minimalAccount.owner());
         minimalAccount.execute(dest, value, functionData);
@@ -50,7 +50,7 @@ contract MinimalAccountTest is Test {
         address dest = address(usdc);
         uint256 value = 0;
         bytes memory functionData = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
-         
+
         //Act
         vm.prank(randomUser);
         vm.expectRevert(MinimalAccount.MinimalAccount__NotFromEntryPointOrOwner.selector);
@@ -66,16 +66,17 @@ contract MinimalAccountTest is Test {
         bytes memory functionData = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
         bytes memory executeData = abi.encodeWithSelector(MinimalAccount.execute.selector, dest, value, functionData);
 
-        PackedUserOperation memory packedUserOp = sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
+        PackedUserOperation memory packedUserOp =
+            sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
         bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
-        
+
         //Act
         address actualSigner = ECDSA.recover(userOperationHash.toEthSignedMessageHash(), packedUserOp.signature);
 
         //Assert
         assertEq(actualSigner, minimalAccount.owner());
     }
-    
+
     //1. sign user ops
     //2. call validate userops
     //3. assert the return is correct
@@ -88,9 +89,10 @@ contract MinimalAccountTest is Test {
         bytes memory functionData = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
         bytes memory executeData = abi.encodeWithSelector(MinimalAccount.execute.selector, dest, value, functionData);
 
-        PackedUserOperation memory packedUserOp = sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
+        PackedUserOperation memory packedUserOp =
+            sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
         bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
-        
+
         uint256 missingAccountFunds = 1e18; //way higher for testing only...
         //Act
         vm.prank(helperConfig.getConfig().entryPoint);
@@ -107,7 +109,8 @@ contract MinimalAccountTest is Test {
         bytes memory functionData = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
         bytes memory executeData = abi.encodeWithSelector(MinimalAccount.execute.selector, dest, value, functionData);
 
-        PackedUserOperation memory packedUserOp = sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
+        PackedUserOperation memory packedUserOp =
+            sendPackedUserOp.generateSignedUserOperation(executeData, helperConfig.getConfig(), address(minimalAccount));
         // bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
 
         vm.deal(address(minimalAccount), 1e18);

@@ -18,14 +18,14 @@ contract MinimalAccount is IAccount, Ownable {
     IEntryPoint public immutable i_entryPoint;
 
     modifier requireFromEntryPoint() {
-        if(msg.sender != address(i_entryPoint)) {
+        if (msg.sender != address(i_entryPoint)) {
             revert MinimalAccount__NotFromEntryPoint();
         }
         _;
     }
 
     modifier requireFromEntryPointOrOwner() {
-        if(msg.sender != address(i_entryPoint) && msg.sender != owner()) {
+        if (msg.sender != address(i_entryPoint) && msg.sender != owner()) {
             revert MinimalAccount__NotFromEntryPointOrOwner();
         }
         _;
@@ -39,10 +39,10 @@ contract MinimalAccount is IAccount, Ownable {
 
     ///////////External Functions///////////////
     //A signature is valid, if it is the owner of the contract (simple)...
-    function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) 
+    function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds)
         external
         requireFromEntryPoint
-        returns (uint256 validationData) 
+        returns (uint256 validationData)
     {
         validationData = _validateSignature(userOp, userOpHash);
         // validateNonce() - not necessary the entry point contract will do the check
@@ -51,28 +51,27 @@ contract MinimalAccount is IAccount, Ownable {
 
     function execute(address dest, uint256 value, bytes calldata functionData) external requireFromEntryPointOrOwner {
         (bool success, bytes memory result) = dest.call{value: value}(functionData);
-        if(!success) {
+        if (!success) {
             revert MinimalAccount__CallFailed(result);
         }
     }
 
     /////////////Internal Functions/////////////
-    function _validateSignature(PackedUserOperation calldata userOp, bytes32 userOpHash) // userOpHash - EIP191 version
-        internal
-        view
-        returns (uint256 validationData)
-    {
+    function _validateSignature(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash // userOpHash - EIP191 version
+    ) internal view returns (uint256 validationData) {
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(userOpHash); //Eip191 std to normal hash
         address signer = ECDSA.recover(ethSignedMessageHash, userOp.signature);
-        if(signer != owner()) {
+        if (signer != owner()) {
             return SIG_VALIDATION_FAILED;
         }
         return SIG_VALIDATION_SUCCESS;
     }
 
     function _payPrefund(uint256 missingAccountFunds) internal {
-        if(missingAccountFunds != 0) {
-            (bool success, ) = payable(msg.sender).call{value: missingAccountFunds, gas: type(uint256).max}("");
+        if (missingAccountFunds != 0) {
+            (bool success,) = payable(msg.sender).call{value: missingAccountFunds, gas: type(uint256).max}("");
             (success);
         }
     }

@@ -37,18 +37,22 @@ contract SendPackedUserOp is Script {
         vm.stopBroadcast();
     }
 
-    function generateSignedUserOperation(bytes memory callData, HelperConfig.NetworkConfig memory config, address minimalAccount) public view returns (PackedUserOperation memory) {
+    function generateSignedUserOperation(
+        bytes memory callData,
+        HelperConfig.NetworkConfig memory config,
+        address minimalAccount
+    ) public view returns (PackedUserOperation memory) {
         //1. Generate the unsigned data
         uint256 nonce = vm.getNonce(minimalAccount) - 1;
         PackedUserOperation memory userOp = _generateUnsignedUserOperation(callData, minimalAccount, nonce);
-        
+
         //2. Get the userOp Hash
         bytes32 userOpHash = IEntryPoint(config.entryPoint).getUserOpHash(userOp);
         bytes32 digest = userOpHash.toEthSignedMessageHash();
 
         //3. Sign it and return with signature
         uint8 v;
-        bytes32 r; 
+        bytes32 r;
         bytes32 s;
         uint256 ANVIL_DEFAULT_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         if (block.chainid == 31337) {
@@ -62,13 +66,17 @@ contract SendPackedUserOp is Script {
         return userOp;
     }
 
-    function _generateUnsignedUserOperation(bytes memory callData, address sender, uint256 nonce) internal pure returns (PackedUserOperation memory) {
+    function _generateUnsignedUserOperation(bytes memory callData, address sender, uint256 nonce)
+        internal
+        pure
+        returns (PackedUserOperation memory)
+    {
         uint128 verificationGasLimit = 16777216;
         uint128 callGasLimit = verificationGasLimit;
         uint128 maxPriorityFeePerGas = 256;
         uint128 maxFeePerGas = maxPriorityFeePerGas;
 
-        return PackedUserOperation ({
+        return PackedUserOperation({
             sender: sender,
             nonce: nonce,
             initCode: hex"",
@@ -78,6 +86,6 @@ contract SendPackedUserOp is Script {
             gasFees: bytes32(uint256(maxPriorityFeePerGas) << 128 | maxFeePerGas),
             paymasterAndData: hex"",
             signature: hex""
-        });   
+        });
     }
 }

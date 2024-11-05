@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import { Script, console2 } from "lib/forge-std/src/Script.sol";
+import {Script, console2} from "lib/forge-std/src/Script.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 
 contract HelperConfig is Script {
@@ -64,7 +64,7 @@ contract HelperConfig is Script {
     }
 
     function getEthSepoliaConfig() public pure returns (NetworkConfig memory) {
-        return NetworkConfig({ 
+        return NetworkConfig({
             entryPoint: 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789,
             usdc: 0x53844F9577C2334e541Aec7Df7174ECe5dF1fCf0, // Update with your own mock token
             account: BURNER_WALLET
@@ -72,10 +72,10 @@ contract HelperConfig is Script {
     }
 
     function getZkSyncSepoliaConfig() public pure returns (NetworkConfig memory) {
-        return NetworkConfig({ 
+        return NetworkConfig({
             entryPoint: address(0),
             usdc: 0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E, // not the real USDC on zksync sepolia
-            account: BURNER_WALLET 
+            account: BURNER_WALLET
         });
     }
 
@@ -91,7 +91,7 @@ contract HelperConfig is Script {
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({entryPoint: address(entryPoint), account: ANVIL_DEFAULT_WALLET});
-        
+
         return localNetworkConfig;
     }
 }
